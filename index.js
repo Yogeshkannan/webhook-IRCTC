@@ -15,6 +15,10 @@ server.post('/IRCTC-find-trains', (req, res) => {
     var source = req.body.result.parameters.source;
     var destination = req.body.result.parameters.destination;
     var date = req.body.result.parameters.date;
+
+    console.log("Source-->", source)
+    console.log("destination-->", destination)
+    console.log("date-->", date)
     var apiKey = 'ay8dlpzcb6';
     var srcStationCode, destStationCode;
 
@@ -24,12 +28,14 @@ server.post('/IRCTC-find-trains', (req, res) => {
   		} else {
   			var src = JSON.parse(body).stations[0].code;
         srcStationCode = src;
+        console.log("srcStationCode-->", srcStationCode)
         request('https://api.railwayapi.com/v2/name-to-code/station/'+destination+'/apikey/'+apiKey+'/', function(error, responseFromAPI, body) {
       		if (error) {
       			console.log("ERR:", error);
       		} else {
       			var dest = JSON.parse(body).stations[0].code;
             destStationCode = dest;
+            console.log("destStationCode-->", destStationCode)
             if(srcStationCode && destStationCode) {
               var formattedDate = moment(date).format('DD-MM-YYYY');
               const reqUrl = 'https://api.railwayapi.com/v2/between/source/'+srcStationCode+'/dest/'+destStationCode+'/date/'+formattedDate+'/apikey/'+apiKey+'/';
@@ -38,6 +44,7 @@ server.post('/IRCTC-find-trains', (req, res) => {
             			console.log("ERR:", error);
             		} else {
                   var trains = JSON.parse(body).trains;
+                  console.log("trains-->", trains)
                   if(trains) {
                     var trainsList = [];
               			for (var i = 0; i < trains.length; i++) {
