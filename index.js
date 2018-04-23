@@ -41,7 +41,8 @@ server.post('/IRCTC', (req, res) => {
                   if(trains) {
                     var trainsList = [];
               			for (var i = 0; i < trains.length; i++) {
-                      var trainInfo = trains[i].name + ' at ' + trains[i].src_departure_time;
+                      var replacedStr = trains[i].name.replace(/EXP/g, "Express");
+                      var trainInfo = replacedStr + ' at ' + trains[i].src_departure_time;
               				trainsList.push(trainInfo);
               			}
                     let dataToSend = "Available trains are " + trainsList.toString();
