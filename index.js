@@ -10,7 +10,7 @@ server.use(bodyParser.urlencoded({
 
 server.use(bodyParser.json());
 
-server.post('/IRCTC', (req, res) => {
+server.post('/IRCTC-find-trains', (req, res) => {
 
     var source = req.body.result.parameters.source;
     var destination = req.body.result.parameters.destination;
@@ -50,13 +50,13 @@ server.post('/IRCTC', (req, res) => {
                     return res.json({
                         speech: dataToSend,
                         displayText: dataToSend,
-                        source: 'IRCTC'
+                        source: 'IRCTC-find-trains'
                     });
                   } else {
                     return res.json({
                         speech: 'No trains are available',
                         displayText: 'No trains are available',
-                        source: 'IRCTC'
+                        source: 'IRCTC-find-trains'
                     });
                   }
 
@@ -73,6 +73,42 @@ server.post('/IRCTC', (req, res) => {
         });
   		}
     });
+});
+
+server.post('/IRCTC-PNR-status', (req, res) => {
+
+    var pnrNumber = req.body.result.parameters.pnrNumber;
+    var apiKey = 'ay8dlpzcb6';
+
+    const reqUrl = 'https://api.railwayapi.com/v2/pnr-status/pnr/'+ pnrNumber +'/apikey/'+apiKey+'/';
+    request(reqUrl, function(error, responseFromAPI, body) {
+      if (error) {
+        console.log("ERR:", error);
+      } else {
+        var passengers = JSON.parse(body).passengers;
+        if(passengers && passengers.length >= 1) {
+          var passengerList = [];
+          for (var i = 0; i < passengers.length; i++) {
+            var passengerInfo = 'For the passenger'+ passengers[i].no + ', current status is ' + passengers[i].current_status;
+            passengerList.push(passengerInfo);
+          }
+          let dataToSend = "The PNR status " + passengerList.toString();
+
+          return res.json({
+              speech: dataToSend,
+              displayText: dataToSend,
+              source: 'IRCTC-PNR-status'
+          });
+        } else {
+          return res.json({
+              speech: 'Invaild PNR Number',
+              displayText: 'Invaild PNR Number',
+              source: 'IRCTC-PNR-status'
+          });
+        }
+      }
+    });
+
 });
 
 server.listen((process.env.PORT || 8000), () => {
